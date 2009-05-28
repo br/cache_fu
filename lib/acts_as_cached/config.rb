@@ -41,7 +41,8 @@ module ActsAsCached
     end
 
     def setup_memcache(config)
-      config[:namespace] << "-#{RAILS_ENV}"
+      # config[:namespace] << "-#{RAILS_ENV}"
+      config[:namespace]  # so replica generates same cache keys
 
       # if someone (e.g., interlock) already set up memcached, then
       # we need to stop here
@@ -55,7 +56,7 @@ module ActsAsCached
       CACHE.servers = Array(config.delete(:servers))
       SESSION_CACHE.servers = Array(config[:session_servers]) if config[:session_servers]
      
-      setup_session_store   if config[:sessions]
+      setup_session_store(config)   if config[:sessions]
       setup_fragment_store! if config[:fragments]
       setup_fast_hash!      if config[:fast_hash]
       setup_fastest_hash!   if config[:fastest_hash]
@@ -67,9 +68,10 @@ module ActsAsCached
       (config[:client] || "MemCache").classify.constantize.new(config)
     end
 
-    def setup_session_store
+    def setup_session_store(config)
       ActionController::Base.session_store = :mem_cache_store
       ActionController::CgiRequest::DEFAULT_SESSION_OPTIONS.update 'cache' => defined?(SESSION_CACHE) ? SESSION_CACHE : CACHE
+      ActionController::CgiRequest::DEFAULT_SESSION_OPTIONS.update 'expires' => config[:ttl] || 1800
     end
 
     def setup_fragment_store!
