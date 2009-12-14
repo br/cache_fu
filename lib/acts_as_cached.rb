@@ -25,7 +25,7 @@ module ActsAsCached
 
       extend  Extensions::ClassMethods    if defined? Extensions::ClassMethods
       include Extensions::InstanceMethods if defined? Extensions::InstanceMethods
-
+      
       options.symbolize_keys!
 
       options[:store] ||= ActsAsCached.config[:store] 

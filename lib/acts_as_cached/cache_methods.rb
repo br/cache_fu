@@ -3,7 +3,7 @@ module ActsAsCached
     @@nil_sentinel = :_nil
 
     def cache_config
-      config = ActsAsCached::Config.class_config[cache_name] ||= {}
+      config = ActsAsCached::Config.class_config[cache_name] ||= { :store => CACHE }
       if name == cache_name
         config
       else
