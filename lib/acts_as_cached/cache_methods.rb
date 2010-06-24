@@ -157,6 +157,7 @@ module ActsAsCached
     alias :is_cached? :cached?
 
     def fetch_cache(cache_id)
+      return if BackgroundCache::Config.caches
       return if ActsAsCached.config[:skip_gets]
 
       autoload_missing_constants do 
@@ -230,7 +231,7 @@ module ActsAsCached
       yield
     rescue ArgumentError, MemCache::MemCacheError => error
       lazy_load ||= Hash.new { |hash, hash_key| hash[hash_key] = true; false }
-      if error.to_s[/undefined class|referred/] && !lazy_load[error.to_s.split.last.sub(/::$/, '').constantize] then retry
+      if error.to_s[/undefined class|referred/] && !lazy_load[error.to_s.split.last.constantize] then retry
       else raise error end
     end
   end
